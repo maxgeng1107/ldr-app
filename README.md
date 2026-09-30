@@ -1,56 +1,70 @@
-# Welcome to your Expo app 👋
+# LDR App — a shared space for couples in different time zones
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> 🚧 **Work in progress.** This is the first version, built as a learning project. This README describes what works *today* and what is planned — nothing more.
 
-## Get started
+## The idea
 
-1. Install dependencies
+Long-distance couples constantly do time-zone math in their heads: *"Is it 2 AM for her? Is she in class?"*
+This app gives two people one shared screen that answers three questions at a glance:
 
-   ```bash
-   npm install
-   ```
+1. **What time is it for my partner right now** — and are they likely asleep?
+2. **When are we both free to call today?** — computed automatically from each person's weekly availability.
+3. **What is my partner doing?** — a simple shared status (planned).
 
-2. Start the app
+Most existing long-distance apps focus on novelty features (drawing widgets, distance counters, virtual rooms). This project focuses on the one problem that time zones actually create: **finding time to talk.**
 
-   ```bash
-   npx expo start
-   ```
+## Current status
 
-In the output, you'll find options to open the app in a
+| Feature | Status |
+|---|---|
+| Screen structure: Login → Home ↔ Best Call Time (Expo Router, stack navigation) | ✅ done |
+| Home: dual-clock layout | 🟡 UI only, mock data |
+| Best Call Time: list of overlapping call windows | 🟡 UI only, mock data (UTC ISO strings) |
+| Email sign-up / log-in (Supabase Auth) | ⏳ planned |
+| Pairing two accounts with an invite code | ⏳ planned |
+| Live clocks from each user's IANA time zone | ⏳ planned |
+| **Overlap algorithm** — intersect two people's weekly free slots across time zones, DST-safe, with unit tests | ⏳ planned (core technical piece) |
+| Shared status with real-time updates | ⏳ optional |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Tech stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+| Layer | Choice | Why |
+|---|---|---|
+| App | React Native + Expo (SDK 57), TypeScript | One codebase for iOS and Android; TypeScript catches type errors at compile time |
+| Navigation | Expo Router | File-based routing — each file in `src/app/` is a screen |
+| Backend (planned) | Supabase — PostgreSQL, Auth, Realtime | No custom server needed for an MVP; relational data fits users → couples → availability; row-level security keeps each couple's data private |
+| Time handling (planned) | Store moments in UTC, users' zones as IANA names (e.g. `America/Los_Angeles`) | Offsets like `UTC-8` change with daylight saving; IANA names don't |
 
-## Get a fresh project
+## Project structure
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+src/
+├── app/                 # every file here is a screen (Expo Router)
+│   ├── _layout.tsx      # root Stack navigator: headers, back navigation
+│   ├── index.tsx        # Login (first screen)
+│   ├── home.tsx         # dual clock
+│   └── call-time.tsx    # best call windows
+└── data/
+    └── mock.ts          # mock users and UTC call slots (replaced by Supabase later)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Run it locally
 
-### Other setup steps
+Requires Node.js and the Expo Go app on your phone.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npm install
+npx expo start
+```
 
-## Learn more
+Scan the QR code with your phone camera (iOS) or the Expo Go app (Android).
 
-To learn more about developing your project with Expo, look at the following resources:
+## Next steps
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Supabase authentication and invite-code pairing
+- Overlap algorithm as a pure function in `src/lib/`, covered by Jest tests (no overlap, overlap across midnight, DST switch day, touching slots)
+- Design decisions log in `docs/decisions.md`
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Built by [Max Geng](https://github.com/maxgeng1107).

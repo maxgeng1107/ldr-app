@@ -7,8 +7,7 @@ export default function RootLayout() {
         headerTintColor: "#333",
       }}>
         <Stack.Screen name="index" options={{headerShown:false}}/>
-        <Stack.Screen name="home" options={{title:"Home"}}/>
-        <Stack.Screen name="call-time" options={{title:"Call Time Match"}}/>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
     </Stack>
   );
 }

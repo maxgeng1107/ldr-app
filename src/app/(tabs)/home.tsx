@@ -33,7 +33,6 @@ export default function Home() {
         </View>
       </View>
       <Button title="Call TIme" onPress={()=>router.push("/call-time")}/>
-      <Button title="database test screen" onPress={()=>router.push("/db-test")}/>
       
     </View>
   );

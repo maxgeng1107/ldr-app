@@ -1,7 +1,7 @@
 export type Person = { name: string; timezone: string };
 
 export const me: Person = { name: "Max", timezone: "America/Los_Angeles" };
-export const partner: Person = { name: "TA", timezone: "Asia/Shanghai" };
+export const partner: Person = { name: "TA", timezone: "Europe/London" };
 
 export type Slot = { start: string; end: string };   // UTC ISO strings
 

@@ -1,8 +1,6 @@
 import { supabase } from "@/lib/supabase";
-import { formatTime } from "@/lib/time";
-import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function Home() {
   const [now,setNow] = useState(new Date());
@@ -25,14 +23,6 @@ export default function Home() {
   if (!profile) return <Text>Loading...</Text>
   return (
     <View style={styles.container}>
-      <View style={{flexDirection:"row"}}>
-        <View style={styles.label}>
-          <Text>{profile.name}</Text>
-          <Text>{profile.timezone}</Text>
-          <Text>{formatTime(profile.timezone, now)}</Text>
-        </View>
-      </View>
-      <Button title="Call TIme" onPress={()=>router.push("/call-time")}/>
       
     </View>
   );

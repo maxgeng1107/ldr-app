@@ -1,4 +1,4 @@
-import { clockAngles } from "@/lib/time";
+import { clockAngles, formatTime } from "@/lib/time";
 import SVG, { Circle, Line, Text } from "react-native-svg";
 
 // Numbers sit on an inner circle. Text must stay upright, so instead of rotating it,
@@ -43,6 +43,9 @@ export function AnalogClock({timeZone, now, size = 120} : {timeZone:string, now:
                 stroke="red" strokeWidth={1} strokeLinecap="round"
                 transform={`rotate(${second} 100 100)`} />
             <Circle cx={100} cy={100} r={1} fill="black" />
+            <Text x={100} y={125} textAnchor="middle" fontSize={10}>
+                {formatTime(timeZone,now,false)}
+            </Text>
         </SVG>
     );
 }

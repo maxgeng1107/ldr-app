@@ -1,12 +1,14 @@
 
-export function formatTime(timeZone: string, now: Date): string{
+export function formatTime(timeZone: string, now: Date, showSeconds: boolean=true): string{
     return new Intl.DateTimeFormat("en-US",{
         timeZone,
         hour: "numeric",
         minute: "2-digit",
-        second: "2-digit",
+        second: showSeconds ? "2-digit" : undefined,
     }).format(now);
 }
+
+
 export function clockAngles(timeZone: string, now: Date):{ hour: number; 
     minute: number; second: number}{
     const FULLCYCLE = 360;

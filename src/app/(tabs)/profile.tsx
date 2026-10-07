@@ -1,14 +1,14 @@
+import { AnalogClock } from "@/components/AnalogClock";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-
 export default function Profile() {
   const [profile, setProfile] = useState<any>(null);
   const [partner, setPartner] = useState<any>(null);
   const [pairCode, setPairCode] = useState<string | null>(null);
   const [coupleCode,setCoupleCode] = useState<string>("");
   const [pairLoad,setPairLoad] = useState(false);
-
+  const [now, setNow] = useState(new Date());
   async function load_profile(){
       const { data:{user} } = await supabase.auth.getUser();
       if (!user) return; //anon
@@ -50,6 +50,8 @@ export default function Profile() {
   }
   useEffect(()=>{
     load_profile();
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
   },[]);
   if (!profile) return <Text>Loading...</Text>
 
@@ -71,6 +73,11 @@ export default function Profile() {
           <Text style={[styles.cell, styles.timezone]}>{profile.timezone}</Text>
           <View style={styles.middle}/>
           <Text style={[styles.cell, styles.timezone]}>{partner.timezone}</Text>
+        </View>
+        <View style={styles.row}>
+          <View style={styles.cell}><AnalogClock timeZone={profile.timezone} now={now} /></View>
+          <View style={styles.middle}/>
+          <View style={styles.cell}><AnalogClock timeZone={partner.timezone} now={now} /></View>
         </View>
       </View>
     );

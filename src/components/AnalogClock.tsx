@@ -9,7 +9,7 @@ function numberPosition(i: number) {
     const theta = (i * 30 * Math.PI) / 180;           // degrees → radians
     return {
         x: 100 + NUMBER_RADIUS * Math.sin(theta),
-        y: 100 - NUMBER_RADIUS * Math.cos(theta) + NUMBER_SIZE * 0.35,   // shift down to center the glyph vertically
+        y: 100 - NUMBER_RADIUS * Math.cos(theta) + NUMBER_SIZE * 0.35,   
     };
 }
 

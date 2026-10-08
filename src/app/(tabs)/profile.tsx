@@ -1,7 +1,13 @@
 import { AnalogClock } from "@/components/AnalogClock";
 import { supabase } from "@/lib/supabase";
+import { daysTogether } from "@/lib/time";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator, Button,
+  Platform,
+  Pressable, StyleSheet, Text, TextInput, View,
+} from "react-native";
 export default function Profile() {
   const [profile, setProfile] = useState<any>(null);
   const [partner, setPartner] = useState<any>(null);
@@ -9,6 +15,10 @@ export default function Profile() {
   const [coupleCode,setCoupleCode] = useState<string>("");
   const [pairLoad,setPairLoad] = useState(false);
   const [now, setNow] = useState(new Date());
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [picked, setPicked] = useState<Date>(new Date());
+  const [showPicker,setShowPicker] = useState(false);
+
   async function load_profile(){
       const { data:{user} } = await supabase.auth.getUser();
       if (!user) return; //anon
@@ -16,7 +26,10 @@ export default function Profile() {
       // load my profile
       const { data: me, error } = await supabase
         .from("users").select("*").eq("id",user.id).single();
-      if (error) console.log(error);
+      if (error || !me) {
+        console.log("load profile failed:", error?.message);
+        return;
+      }
       setProfile(me);
 
       if (!me.couple_id) return;
@@ -25,6 +38,7 @@ export default function Profile() {
         .from("couples").select("*").eq("id",me.couple_id).single();
       if (couple_error) console.log(couple_error);
       if (couple && couple.pair_code) setPairCode(couple.pair_code);
+      if (couple) setStartDate(couple.start_date);
 
       // load partner info
       const { data:p, error:partnerError} = await supabase
@@ -33,7 +47,7 @@ export default function Profile() {
       if (partnerError) console.log(partnerError.message);
       setPartner(p);
 
-    }
+  }
   async function pairCouple(){
     setPairLoad(true);
     const { error } = await supabase.rpc("join_couple",{ code: coupleCode });
@@ -48,6 +62,18 @@ export default function Profile() {
     if (error) console.log(error);
     else await load_profile();
   }
+  async function saveStartdate(){
+    const day = Intl.DateTimeFormat("en-CA", { timeZone:profile.timezone }).format(picked);
+    if (!profile){
+      console.log(profile);
+      return;
+    }
+    const { error:dateError } = await supabase
+      .from("couples").update({start_date:day}).eq("id", profile.couple_id);
+    if ( dateError ) {console.log(dateError.message); return;}
+    setStartDate(day);
+  }
+
   useEffect(()=>{
     load_profile();
     const id = setInterval(() => setNow(new Date()), 1000);
@@ -79,6 +105,52 @@ export default function Profile() {
           <View style={styles.middle}/>
           <View style={styles.cell}><AnalogClock timeZone={partner.timezone} now={now} /></View>
         </View>
+
+        { !startDate ? (
+          <View style={styles.dateCard}>
+            <Text style={styles.dateQuestion}>When did you start dating?</Text>
+            { Platform.OS === "ios" ? (
+              <DateTimePicker
+                value={picked}
+                mode="date"
+                display="compact"
+                maximumDate={new Date()}
+                onChange={(event, date) => {
+                  if (date) setPicked(date);
+                }}
+              />
+            ) : 
+            (
+              <>
+                <Pressable onPress={() => setShowPicker(true)}>
+                  <Text>{picked.toLocaleDateString()}</Text>
+                </Pressable>
+                {showPicker && <DateTimePicker
+                  value={picked}
+                  mode="date"
+                  display="compact"
+                  maximumDate={new Date()}
+                  onChange={(event, date) => {
+                    setShowPicker(false);
+                    if (event.type === "set" && date) setPicked(date);
+                  }}
+                />}
+              </>
+            )}
+            <Pressable
+              onPress={() => {saveStartdate()}}
+              style={({ pressed }) => [styles.saveButton, pressed && { opacity: 0.6 }]}
+            >
+              <Text style={styles.saveText}>Save</Text>
+            </Pressable>
+          </View>
+        ):(
+          <View style={styles.dateCard}>
+            <Text style={styles.dayNumber}>{daysTogether(startDate, profile.timezone, now)}</Text>
+            <Text style={styles.dayLabel}>days together</Text>
+            <Text style={styles.sinceText}>since {startDate}</Text>
+          </View>) }
+
       </View>
     );
   }
@@ -175,5 +247,41 @@ const styles = StyleSheet.create({
     height:75,
     borderRadius:8,
 
-  }
+  },
+  dateCard: {
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
+    minWidth: 260,
+  },
+  dateQuestion: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  saveButton: {
+    backgroundColor: "#333",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 32,
+  },
+  saveText: {
+    color: "white",
+    fontWeight: "600",
+  },
+  dayNumber: {
+    fontSize: 48,
+    fontWeight: "700",
+  },
+  dayLabel: {
+    fontSize: 16,
+    color: "#333",
+  },
+  sinceText: {
+    fontSize: 12,
+    color: "#999",
+  },
 });

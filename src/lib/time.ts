@@ -34,3 +34,10 @@ export function clockAngles(timeZone: string, now: Date):{ hour: number;
     const angle_second = (FULLCYCLE/SEC_CYCLE) * s;
     return {hour: angle_hour, minute: angle_minute, second: angle_second};
 }
+
+export function daysTogether(startDate: string, timeZone: string, now: Date):number{
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone }).format(now);
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+    return (new Date(today).getTime() - new Date(startDate).getTime()) / MS_PER_DAY;
+
+}

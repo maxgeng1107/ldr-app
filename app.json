@@ -33,7 +33,13 @@
           "imageWidth": 76
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose photos to share on your private timeline."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

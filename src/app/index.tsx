@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 function ErrorMessage(code?: string, fallback?: string): string {
@@ -26,6 +26,16 @@ export default function Login() {
   const [name, setName] = useState("");
   const canSubmit = email.trim() != "" && password.length >= 6 && !pending;
   const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(true);
+
+  // on startup: if a saved session exists, skip the login form
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.replace("/home");
+      else setChecking(false);
+    });
+  }, []);
+
   async function handleSubmit(){
     setPending(true);
     setError(null);
@@ -43,7 +53,11 @@ export default function Login() {
       return;
     }
     router.replace("/home");
-    
+
+  }
+  // while checking for a saved session, show a spinner instead of flashing the login form
+  if (checking) {
+    return <View style={styles.container}><ActivityIndicator /></View>;
   }
   return (
     <View style={styles.container}>

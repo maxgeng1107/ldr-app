@@ -2,6 +2,7 @@ import { AnalogClock } from "@/components/AnalogClock";
 import { supabase } from "@/lib/supabase";
 import { daysTogether } from "@/lib/time";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator, Button,
@@ -61,6 +62,10 @@ export default function Profile() {
     const { error } = await supabase.rpc("create_couple");
     if (error) console.log(error);
     else await load_profile();
+  }
+  async function signOut(){
+    await supabase.auth.signOut();   // deletes the saved session
+    router.replace("/");              // back to the login screen
   }
   async function saveStartdate(){
     const day = Intl.DateTimeFormat("en-CA", { timeZone:profile.timezone }).format(picked);
@@ -151,6 +156,7 @@ export default function Profile() {
             <Text style={styles.sinceText}>since {startDate}</Text>
           </View>) }
 
+        <Pressable onPress={signOut}><Text style={styles.signOut}>Sign out</Text></Pressable>
       </View>
     );
   }
@@ -195,6 +201,7 @@ export default function Profile() {
         <Text>Pair Code: {pairCode} — send it to your partner</Text>
       )}
 
+      <Pressable onPress={signOut}><Text style={styles.signOut}>Sign out</Text></Pressable>
     </View>
   );
 }
@@ -279,6 +286,11 @@ const styles = StyleSheet.create({
   dayLabel: {
     fontSize: 16,
     color: "#333",
+  },
+  signOut: {
+    color: "#999",
+    fontSize: 14,
+    marginTop: 8,
   },
   sinceText: {
     fontSize: 12,
